@@ -19,7 +19,7 @@ export default function LeadsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [minScore, setMinScore] = useState('');
-  const [sortBy, setSortBy] = useState<SortKey>('score');
+  const [sortBy, setSortBy] = useState<SortKey>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const fetchLeads = useCallback(async () => {
@@ -162,13 +162,10 @@ export default function LeadsPage() {
                       <Link href="/discovery" className="text-brand-400 hover:underline text-sm">Discover leads →</Link>
                     </td>
                   </tr>
-                ) : leads.map((lead, i) => (
-                  <motion.tr
+                ) : leads.map((lead) => (
+                  <tr
                     key={lead.id}
                     className="table-row"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
                   >
                     <td className="table-td font-semibold text-white">{lead.company_name}</td>
                     <td className="table-td">
@@ -201,7 +198,7 @@ export default function LeadsPage() {
                         </button>
                       </div>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))}
               </tbody>
             </table>

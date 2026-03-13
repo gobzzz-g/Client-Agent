@@ -21,6 +21,7 @@ class Lead(Base):
     industry = Column(String(100), default="")
     location = Column(String(100), default="")
     service_query = Column(String(255), default="")
+    lead_type = Column(String(50), default="client")  # client | competitor | partner
     score = Column(Float, default=0.0)             # 0-100 lead score
     opportunity = Column(String(255), default="")  # one-line opportunity
     ai_explanation = Column(Text, default="")      # full AI analysis
@@ -40,6 +41,7 @@ class Lead(Base):
             "industry": self.industry,
             "location": self.location,
             "service_query": self.service_query,
+            "lead_type": self.lead_type,
             "score": self.score,
             "opportunity": self.opportunity,
             "ai_explanation": self.ai_explanation,

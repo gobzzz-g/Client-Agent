@@ -1,12 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Zap, CheckCircle, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
+import { Search, Zap, CheckCircle, AlertCircle, Loader2, ExternalLink, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import Topbar from '@/components/layout/Topbar';
 import { discoveryApi, type Lead } from '@/lib/api';
 import { getScoreColor, getScoreLabel } from '@/lib/utils';
+
+type DiscoveryCache = {
+  form: { industry: string; location: string; service: string; max_results: number };
+  results: Lead[] | null;
+  error: string;
+};
+
+let discoveryPageCache: DiscoveryCache | null = null;
 
 export default function DiscoveryPage() {
   const [form, setForm] = useState({ industry: '', location: '', service: '', max_results: 10 });
@@ -22,6 +30,22 @@ export default function DiscoveryPage() {
     'Scoring leads based on signals...',
     'Saving to database...',
   ];
+
+  useEffect(() => {
+    if (!discoveryPageCache) return;
+    setForm(discoveryPageCache.form);
+    setResults(discoveryPageCache.results);
+    setError(discoveryPageCache.error);
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    discoveryPageCache = {
+      form,
+      results,
+      error,
+    };
+  }, [form, results, error, loading]);
 
   const handleDiscover = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +76,17 @@ export default function DiscoveryPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setResults(null);
+    setError('');
+    setStep('');
+    discoveryPageCache = {
+      form,
+      results: null,
+      error: '',
+    };
   };
 
   const industryExamples = ['Restaurants', 'Hotels', 'Dental Clinics', 'Real Estate', 'E-commerce', 'Law Firms'];
@@ -152,6 +187,11 @@ export default function DiscoveryPage() {
                 <button type="submit" className="btn-primary" disabled={loading}>
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   {loading ? 'Discovering...' : 'Discover Leads'}
+                </button>
+
+                <button type="button" className="btn-secondary" onClick={handleRefresh} disabled={loading}>
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
                 </button>
               </div>
             </form>

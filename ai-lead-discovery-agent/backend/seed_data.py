@@ -163,25 +163,12 @@ SAMPLE_LEADS = [
 
 
 def seed_sample_leads():
-    """Seed the database with sample leads if empty."""
-    db = SessionLocal()
-    try:
-        count = db.query(Lead).count()
-        if count > 0:
-            print(f"ℹ️  Database already has {count} leads — skipping seed.")
-            return
-
-        print("🌱 Seeding sample leads...")
-        for i, data in enumerate(SAMPLE_LEADS):
-            lead = Lead(
-                **data,
-                created_at=datetime.utcnow() - timedelta(days=len(SAMPLE_LEADS) - i),
-            )
-            db.add(lead)
-        db.commit()
-        print(f"✅ Seeded {len(SAMPLE_LEADS)} sample leads.")
-    except Exception as e:
-        print(f"❌ Seed error: {e}")
-        db.rollback()
-    finally:
-        db.close()
+    """Database ready - no sample data. Use Discovery page to find REAL businesses!"""
+    print("\n" + "="*70)
+    print("✅ DATABASE READY - NO DEMO DATA")
+    print("="*70)
+    print("🔍 Go to: http://localhost:3000/discovery")
+    print("🚀 Start discovering REAL businesses now!")
+    print("="*70 + "\n")
+    # NO SAMPLE DATA - DISABLED COMPLETELY
+    return

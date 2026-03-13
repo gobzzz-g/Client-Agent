@@ -6,13 +6,15 @@ A production-ready full-stack AI SaaS application that automatically discovers b
 
 ## ✨ Features
 
-- **Lead Discovery** — Search web for businesses by industry + location + service
+- **Multi-Query Lead Discovery** — Parallel multi-query + multi-page search up to 1000 businesses
 - **AI Website Scraper** — Playwright + BeautifulSoup to extract company data
-- **Gemini AI Analyzer** — Identifies opportunities and business signals
+- **Gemini AI Analyzer** — Structured website intelligence + lead-type classification
+- **Lead Type Classification** — Client / Competitor / Partner
 - **Lead Scoring (0–100)** — Rule-based + AI scoring engine
 - **Premium Dashboard** — Charts, analytics, search/filter/sort
 - **AI Email Generator** — Personalized outreach emails per lead
 - **Export** — CSV, Excel, JSON download
+- **Automated Discovery Job** — Optional background discovery every N hours
 - **Dark/Light Mode** — Smooth theme toggle
 
 ---
@@ -59,6 +61,10 @@ cp .env.example .env
 # Edit .env and add your API keys:
 #   GEMINI_API_KEY=your_key_here
 #   SERPER_API_KEY=your_key_here
+# Optional automation:
+#   AUTO_DISCOVERY_ENABLED=true
+#   AUTO_DISCOVERY_INTERVAL_HOURS=12
+#   AUTO_DISCOVERY_QUERIES=[{"industry":"restaurants","location":"Coimbatore","service":"AI chatbot automation","max_results":100}]
 
 # Run backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -114,6 +120,9 @@ ai-lead-discovery-agent/
 │       ├── search_service.py    # Serper.dev search
 │       ├── scraper_service.py   # Playwright scraper
 │       ├── ai_analyzer.py       # Gemini analysis
+│       ├── lead_classifier.py   # Client/Competitor/Partner classifier
+│       ├── opportunity_detector.py # Opportunity + reason detector
+│       ├── discovery_engine.py  # End-to-end discovery orchestration
 │       ├── scoring_engine.py    # Lead scorer
 │       └── email_generator.py   # Email writer
 └── frontend/
@@ -165,6 +174,6 @@ ai-lead-discovery-agent/
 
 ## 🧑‍💻 Development
 
-The system includes 10 pre-seeded sample restaurant leads so you can explore the dashboard immediately without any API keys.
+The system now starts with an empty database by default and stores real discovered businesses.
 
-To reset the database: `rm backend/leads.db` and restart the server.
+To reset the database, delete backend/leads.db and restart the backend server.

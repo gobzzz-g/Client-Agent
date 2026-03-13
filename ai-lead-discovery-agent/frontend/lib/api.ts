@@ -25,6 +25,7 @@ export interface Lead {
   industry: string;
   location: string;
   service_query: string;
+  lead_type: 'client' | 'competitor' | 'partner';
   score: number;
   opportunity: string;
   ai_explanation: string;
@@ -40,6 +41,7 @@ export interface Analytics {
   avg_score: number;
   industry_breakdown: Record<string, number>;
   score_distribution: Record<string, number>;
+  opportunity_distribution: Record<string, number>;
   top_opportunities: string[];
 }
 

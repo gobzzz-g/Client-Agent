@@ -120,6 +120,7 @@ def _parse_html(url: str, html: str) -> Dict[str, Any]:
     phones = list(set(re.findall(r"[\+]?\d[\d\s\-\(\)]{7,15}\d", text)))[:5]
 
     social = {}
+    contact_pages = []
     for a in soup.find_all("a", href=True):
         href = a["href"]
         if "facebook.com" in href:
@@ -130,6 +131,11 @@ def _parse_html(url: str, html: str) -> Dict[str, Any]:
             social["twitter"] = href
         elif "linkedin.com" in href:
             social["linkedin"] = href
+
+        href_lower = href.lower()
+        if any(keyword in href_lower for keyword in ["/contact", "contact-us", "get-in-touch"]):
+            if href not in contact_pages:
+                contact_pages.append(href)
 
     # ── Tech signals ────────────────────────────────────────────────────────────
     html_lower = html.lower()
@@ -151,6 +157,7 @@ def _parse_html(url: str, html: str) -> Dict[str, Any]:
             "emails": emails[:5],
             "phones": phones[:3],
             "social": social,
+            "contact_pages": contact_pages[:5],
         },
         "tech_signals": detected_tech + missing,
         "raw_text": text[:3000],  # used by AI analyzer
@@ -167,7 +174,7 @@ def _empty_result(url: str) -> Dict[str, Any]:
     return {
         "company_name": urlparse(url).netloc.replace("www.", ""),
         "description": "",
-        "contact_info": {"emails": [], "phones": [], "social": {}},
+        "contact_info": {"emails": [], "phones": [], "social": {}, "contact_pages": []},
         "tech_signals": [],
         "raw_text": "",
     }

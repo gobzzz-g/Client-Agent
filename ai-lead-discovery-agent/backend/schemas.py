@@ -4,7 +4,7 @@ Pydantic schemas for request/response validation.
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, Field
 
 
 # ─── Requests ─────────────────────────────────────────────────────────────────
@@ -13,7 +13,7 @@ class DiscoveryRequest(BaseModel):
     industry: str
     location: str
     service: str
-    max_results: int = 10
+    max_results: int = Field(default=100, ge=1, le=1000)
 
 
 class EmailGenerateRequest(BaseModel):
@@ -29,6 +29,7 @@ class ContactInfo(BaseModel):
     emails: List[str] = []
     phones: List[str] = []
     social: Dict[str, str] = {}
+    contact_pages: List[str] = []
 
 
 class LeadBase(BaseModel):
@@ -40,6 +41,7 @@ class LeadBase(BaseModel):
     industry: str = ""
     location: str = ""
     service_query: str = ""
+    lead_type: str = "client"
     score: float = 0.0
     opportunity: str = ""
     ai_explanation: str = ""
@@ -78,4 +80,5 @@ class AnalyticsResponse(BaseModel):
     avg_score: float
     industry_breakdown: Dict[str, int]
     score_distribution: Dict[str, int]
+    opportunity_distribution: Dict[str, int]
     top_opportunities: List[str]

@@ -31,6 +31,7 @@ def _lead_row(lead: Lead) -> dict:
         "Company": lead.company_name,
         "Website": lead.website,
         "Industry": lead.industry,
+        "Lead Type": lead.lead_type,
         "Location": lead.location,
         "Score": lead.score,
         "Opportunity": lead.opportunity,
