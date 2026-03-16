@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Save, Eye, EyeOff, Check, Settings as SettingsIcon, Key, Palette, Info } from 'lucide-react';
 import Topbar from '@/components/layout/Topbar';
@@ -14,12 +14,28 @@ export default function SettingsPage() {
   const [senderName, setSenderName] = useState('Alex');
   const [senderCompany, setSenderCompany] = useState('Your Company');
 
+  // Load persistence logic
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedName = localStorage.getItem('senderName');
+      const storedCompany = localStorage.getItem('senderCompany');
+      const storedGemini = localStorage.getItem('geminiKey');
+      const storedSerper = localStorage.getItem('serperKey');
+      if (storedName) setSenderName(storedName);
+      if (storedCompany) setSenderCompany(storedCompany);
+      if (storedGemini) setGeminiKey(storedGemini);
+      if (storedSerper) setSerperKey(storedSerper);
+    }
+  }, []);
+
   const handleSave = () => {
     // Save to localStorage for demo purposes
     // In production, these would be sent to the backend
     if (typeof window !== 'undefined') {
       localStorage.setItem('senderName', senderName);
       localStorage.setItem('senderCompany', senderCompany);
+      localStorage.setItem('geminiKey', geminiKey);
+      localStorage.setItem('serperKey', serperKey);
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -138,7 +154,7 @@ export default function SettingsPage() {
             <div className="space-y-2 text-sm text-slate-400">
               <div className="flex justify-between"><span>Version</span><span className="text-slate-200">1.0.0</span></div>
               <div className="flex justify-between"><span>AI Engine</span><span className="text-slate-200">Google Gemini 1.5 Flash</span></div>
-              <div className="flex justify-between"><span>Scraper</span><span className="text-slate-200">Playwright + BeautifulSoup</span></div>
+              <div className="flex justify-between"><span>Scraper</span><span className="text-slate-200">Playwright </span></div>
               <div className="flex justify-between"><span>Search</span><span className="text-slate-200">Serper.dev</span></div>
               <div className="flex justify-between"><span>Database</span><span className="text-slate-200">SQLite (default)</span></div>
               <div className="flex justify-between"><span>Frontend</span><span className="text-slate-200">Next.js 14 + TailwindCSS</span></div>

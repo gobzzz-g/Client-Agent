@@ -65,7 +65,9 @@ export default function DiscoveryPage() {
     }, 2500);
 
     try {
-      const res = await discoveryApi.discover(form);
+      const storedSerperKey = typeof window !== 'undefined' ? localStorage.getItem('serperKey') || undefined : undefined;
+      const storedGeminiKey = typeof window !== 'undefined' ? localStorage.getItem('geminiKey') || undefined : undefined;
+      const res = await discoveryApi.discover({ ...form, serper_api_key: storedSerperKey, gemini_api_key: storedGeminiKey });
       clearInterval(interval);
       setResults(res.data.leads);
       setStep('');

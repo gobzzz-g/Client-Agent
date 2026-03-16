@@ -22,12 +22,18 @@ async def generate_outreach_email(
     sender_name: str,
     sender_company: str,
     product_description: str,
+    api_key: str = None
 ) -> Dict[str, str]:
     """
     Generate a personalized B2B sales outreach email using Gemini AI.
     Returns dict with 'subject' and 'body'.
     """
-    if not GEMINI_API_KEY:
+    key_to_use = api_key or GEMINI_API_KEY
+    if key_to_use:
+        genai.configure(api_key=key_to_use)
+
+    if not key_to_use:
+        print("❌ No Gemini API Key provided. Using template.")
         return _template_email(company_name, opportunity, sender_name, sender_company, product_description)
 
     try:

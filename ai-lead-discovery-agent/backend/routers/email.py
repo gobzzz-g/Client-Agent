@@ -27,6 +27,7 @@ async def generate_email(request: EmailGenerateRequest, db: Session = Depends(ge
         sender_name=request.sender_name,
         sender_company=request.sender_company,
         product_description=request.product_description or lead.service_query,
+        api_key=request.gemini_api_key
     )
 
     # Save generated email back to the lead

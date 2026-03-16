@@ -71,7 +71,7 @@ export const leadsApi = {
 };
 
 export const discoveryApi = {
-  discover: (data: { industry: string; location: string; service: string; max_results?: number }) =>
+  discover: (data: { industry: string; location: string; service: string; max_results?: number; serper_api_key?: string; gemini_api_key?: string }) =>
     api.post<DiscoveryResponse>('/discover', data),
 };
 
@@ -81,6 +81,7 @@ export const emailApi = {
     sender_name?: string;
     sender_company?: string;
     product_description?: string;
+    gemini_api_key?: string;
   }) => api.post<{ lead_id: number; subject: string; body: string }>('/email/generate', data),
 };
 

@@ -14,6 +14,8 @@ class DiscoveryRequest(BaseModel):
     location: str
     service: str
     max_results: int = Field(default=100, ge=1, le=1000)
+    serper_api_key: Optional[str] = None
+    gemini_api_key: Optional[str] = None
 
 
 class EmailGenerateRequest(BaseModel):
@@ -21,6 +23,7 @@ class EmailGenerateRequest(BaseModel):
     sender_name: str = "Alex"
     sender_company: str = "Your Company"
     product_description: str = ""
+    gemini_api_key: Optional[str] = None
 
 
 # ─── Responses ────────────────────────────────────────────────────────────────

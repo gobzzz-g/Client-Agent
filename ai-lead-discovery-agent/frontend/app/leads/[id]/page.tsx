@@ -26,6 +26,16 @@ export default function LeadDetailPage() {
   const [senderName, setSenderName] = useState('Alex');
   const [senderCompany, setSenderCompany] = useState('Your Company');
 
+  // Load defaults from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedName = localStorage.getItem('senderName');
+      const storedCompany = localStorage.getItem('senderCompany');
+      if (storedName) setSenderName(storedName);
+      if (storedCompany) setSenderCompany(storedCompany);
+    }
+  }, []);
+
   // Status update
   const [status, setStatus] = useState('new');
 
@@ -59,11 +69,13 @@ export default function LeadDetailPage() {
   const handleGenerateEmail = async () => {
     setEmailLoading(true);
     try {
+      const storedGeminiKey = typeof window !== 'undefined' ? localStorage.getItem('geminiKey') || undefined : undefined;
       const res = await emailApi.generate({
         lead_id: Number(id),
         sender_name: senderName,
         sender_company: senderCompany,
         product_description: lead?.service_query ?? '',
+        gemini_api_key: storedGeminiKey,
       });
       setEmail({ subject: res.data.subject, body: res.data.body });
     } catch (e) {

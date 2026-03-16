@@ -106,7 +106,7 @@ async def _fetch_serper_page(
     return results
 
 
-async def search_leads(industry: str, location: str, service: str, max_results: int = 10) -> List[Dict[str, Any]]:
+async def search_leads(industry: str, location: str, service: str, max_results: int = 10, api_key: str = None) -> List[Dict[str, Any]]:
     """
     Discover business websites using multi-query + multi-page Serper search.
 
@@ -116,12 +116,14 @@ async def search_leads(industry: str, location: str, service: str, max_results: 
     """
     target_results = max(1, min(max_results, MAX_DISCOVERY_RESULTS))
 
-    if not SERPER_API_KEY:
+    key_to_use = api_key or SERPER_API_KEY
+
+    if not key_to_use:
         print("⚠️  No SERPER_API_KEY found — returning mock search results.")
         return _mock_search_results(industry, location, service)[:target_results]
 
     headers = {
-        "X-API-KEY": SERPER_API_KEY,
+        "X-API-KEY": key_to_use,
         "Content-Type": "application/json",
     }
 

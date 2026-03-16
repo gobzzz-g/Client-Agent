@@ -21,7 +21,7 @@ Your **AI Lead Discovery Agent** is now **FULLY FUNCTIONAL** and running!
 ### ✅ Feature Checklist
 
 - [x] **Real-time Business Discovery** — Serper API integration complete
-- [x] **Website Scraper** — Playwright + BeautifulSoup functional
+- [x] **Website Scraper** — Playwright  functional
 - [x] **AI Lead Analysis** — Google Gemini integration ready
 - [x] **Lead Scoring Engine** — 0-100 scoring algorithm implemented
 - [x] **Database Storage** — SQLite with 10 sample leads pre-loaded

@@ -33,12 +33,17 @@ async def analyze_lead(
     raw_text: str,
     service_query: str,
     industry: str,
+    api_key: str = None
 ) -> Dict[str, Any]:
     """
     Analyze a scraped lead using Gemini AI.
     Returns a structured intelligence object plus backward-compatible fields.
     """
-    if not GEMINI_API_KEY:
+    key_to_use = api_key or GEMINI_API_KEY
+    if key_to_use:
+        genai.configure(api_key=key_to_use)
+
+    if not key_to_use:
         print(f"⚠️  No GEMINI_API_KEY — using rule-based analysis for {company_name}.")
         return _rule_based_analysis(company_name, tech_signals, service_query, industry)
 

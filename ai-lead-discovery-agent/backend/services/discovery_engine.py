@@ -27,6 +27,7 @@ async def run_discovery_pipeline(request: DiscoveryRequest, db: Session) -> List
         location=request.location,
         service=request.service,
         max_results=request.max_results,
+        api_key=request.serper_api_key
     )
 
     semaphore = asyncio.Semaphore(10)
@@ -57,8 +58,7 @@ async def run_discovery_pipeline(request: DiscoveryRequest, db: Session) -> List
                     tech_signals=tech_signals,
                     raw_text=raw_text,
                     service_query=request.service,
-                    industry=request.industry,
-                )
+                    industry=request.industry,                    api_key=request.gemini_api_key                )
 
                 lead_type = classify_lead_type(
                     company_name=company_name,

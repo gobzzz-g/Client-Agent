@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis,
-  Tooltip, ResponsiveContainer, Legend
+  ComposedChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis,
+  Tooltip, ResponsiveContainer, Legend, CartesianGrid
 } from 'recharts';
 import {
   Users, TrendingUp, Star, Zap, ArrowUpRight, Loader2,
@@ -15,7 +15,15 @@ import Topbar from '@/components/layout/Topbar';
 import { leadsApi, type Analytics, type Lead } from '@/lib/api';
 import { getScoreColor, getScoreLabel, truncate, formatDate } from '@/lib/utils';
 
-const COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#7c3aed'];
+const COLORS = ['#00d4ff', '#a855f7', '#00e5a0', '#f5a623', '#ff6b9d'];
+const INDUSTRY_COLORS_MAP: Record<string, string> = {
+  Technology: '#00d4ff', // Cyan
+  Healthcare: '#a855f7', // Purple
+  Finance: '#00e5a0',    // Green
+  Retail: '#f5a623',     // Orange
+  Other: '#ff6b9d',      // Pink
+};
+const DEFAULT_COLOR = '#ff6b9d';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -52,6 +60,8 @@ export default function DashboardPage() {
     ? Object.entries(analytics.industry_breakdown).map(([name, value]) => ({ name, value }))
     : [];
 
+  const totalLeadsCount = industryData.reduce((acc, curr) => acc + curr.value, 0);
+
   const scoreData = analytics
     ? Object.entries(analytics.score_distribution).map(([name, value]) => ({ name, value }))
     : [];
@@ -60,38 +70,30 @@ export default function DashboardPage() {
     {
       label: 'Total Leads',
       value: analytics?.total_leads ?? 0,
-      icon: Users,
-      color: 'text-brand-400',
-      bg: 'bg-brand-500/10',
-      border: 'border-brand-500/20',
+      accentColor: '#00d4ff', // Cyan
       change: '+12%',
+      subtext: 'avg. +2 leads'
     },
     {
       label: 'High Quality Leads',
       value: analytics?.high_quality_leads ?? 0,
-      icon: Star,
-      color: 'text-yellow-400',
-      bg: 'bg-yellow-500/10',
-      border: 'border-yellow-500/20',
+      accentColor: '#a855f7', // Purple
       change: '+8%',
+      subtext: 'vs. last month'
     },
     {
       label: 'Avg Lead Score',
       value: analytics ? `${analytics.avg_score}` : '0',
-      icon: TrendingUp,
-      color: 'text-green-400',
-      bg: 'bg-green-500/10',
-      border: 'border-green-500/20',
+      accentColor: '#00e5a0', // Green
       change: '+5%',
+      subtext: 'improving trend'
     },
     {
       label: 'Top Opportunities',
       value: analytics?.top_opportunities.length ?? 0,
-      icon: Zap,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20',
-      change: 'AI Powered',
+      accentColor: '#f5a623', // Orange
+      change: '+3',
+      subtext: 'AI identified'
     },
   ];
 
@@ -136,10 +138,6 @@ export default function DashboardPage() {
             <p className="text-slate-400 text-sm mb-4">
               Your AI sales agent has discovered and scored {analytics?.total_leads ?? 0} business leads.
             </p>
-            <Link href="/discovery" className="btn-primary text-sm">
-              <Zap className="w-4 h-4" />
-              Discover New Leads
-            </Link>
           </div>
         </motion.div>
 
@@ -147,15 +145,18 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           {statCards.map((card, i) => (
             <motion.div key={card.label} custom={i} variants={fadeUp} initial="hidden" animate="show">
-              <div className={`card border ${card.border}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-10 h-10 rounded-xl ${card.bg} flex items-center justify-center`}>
-                    <card.icon className={`w-5 h-5 ${card.color}`} />
-                  </div>
-                  <span className="text-xs text-green-400 font-medium">{card.change}</span>
+               <div
+                className="rounded-xl p-5 relative bg-surface-card h-full flex flex-col justify-between"
+                style={{ borderBottom: `3px solid ${card.accentColor}`, boxShadow: 'none' }}
+              >
+                <div>
+                  <p className="text-[13px] font-medium text-slate-500 uppercase tracking-wide mb-1 opacity-70">{card.label}</p>
+                  <p className="text-4xl font-bold text-white mb-2">{card.value}</p>
                 </div>
-                <p className="text-3xl font-bold text-white mb-1">{card.value}</p>
-                <p className="text-sm text-slate-400">{card.label}</p>
+                <div>
+                  <span className="text-sm font-bold block" style={{ color: card.accentColor }}>{card.change}</span>
+                  <span className="text-[11px] text-slate-500">{card.subtext}</span>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -166,52 +167,117 @@ export default function DashboardPage() {
 
           {/* Score Distribution Bar Chart */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-            <div className="card h-full">
-              <h3 className="text-base font-semibold text-white mb-4">Lead Score Distribution</h3>
+            <div className="rounded-xl p-6 bg-surface-card h-full flex flex-col justify-between">
+              <h3 className="text-base font-semibold text-white mb-6">Lead Score Distribution</h3>
+              
               {scoreData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={scoreData} barSize={40}>
-                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <Tooltip
-                      contentStyle={{ background: '#16162a', border: '1px solid #2a2a45', borderRadius: 12, color: '#f1f5f9' }}
-                    />
-                    <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]}>
-                      {scoreData.map((_, idx) => (
-                        <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="flex-1 w-full min-h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={scoreData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                      <XAxis 
+                        dataKey="name" 
+                        tick={{ fill: '#64748b', fontSize: 11 }} 
+                        axisLine={false} 
+                        tickLine={false} 
+                        dy={10} 
+                      />
+                      <YAxis 
+                        tick={{ fill: '#64748b', fontSize: 11 }} 
+                        axisLine={false} 
+                        tickLine={false} 
+                      />
+                      <Tooltip
+                        contentStyle={{ background: '#16162a', border: '1px solid #2a2a45', borderRadius: 12, color: '#f1f5f9' }}
+                        cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                      />
+                      <Bar dataKey="value" fill="#00d4ff" fillOpacity={0.7} barSize={20} radius={[4, 4, 0, 0]}>
+                        {scoreData.map((_, idx) => (
+                          <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                        ))}
+                      </Bar>
+                      <Line type="monotone" dataKey="value" stroke="#a855f7" strokeWidth={2} dot={false} activeDot={{ r: 6, fill: '#a855f7' }} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
               ) : (
-                <div className="h-[220px] flex items-center justify-center text-slate-500 text-sm">
+                 <div className="h-[250px] flex items-center justify-center text-slate-500 text-sm">
                   No data yet — discover some leads!
                 </div>
               )}
             </div>
           </motion.div>
 
-          {/* Industry Breakdown Pie Chart */}
+          {/* Industry Breakdown Donut Chart */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
-            <div className="card h-full">
-              <h3 className="text-base font-semibold text-white mb-4">Industry Breakdown</h3>
+            <div className="rounded-xl p-6 bg-surface-card h-full relative flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-base font-semibold text-white">Industry Breakdown</h3>
+                <div className="flex items-center gap-1.5">
+                   <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6366f1] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#6366f1]"></span>
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium">Live</span>
+                </div>
+              </div>
+
               {industryData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
-                    <Pie data={industryData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
-                      dataKey="value" nameKey="name" paddingAngle={3}>
-                      {industryData.map((_, idx) => (
-                        <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ background: '#16162a', border: '1px solid #2a2a45', borderRadius: 12, color: '#f1f5f9' }}
-                    />
-                    <Legend formatter={(v) => <span className="text-slate-400 text-xs">{v}</span>} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="relative flex-1 min-h-[250px] flex flex-col items-center justify-center">
+                  <div className="relative w-full h-[220px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={industryData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius="65%"
+                          outerRadius="90%"
+                          dataKey="value"
+                          nameKey="name"
+                          paddingAngle={5}
+                          stroke="none"
+                        >
+                          {industryData.map((entry, idx) => (
+                            <Cell 
+                              key={`cell-${idx}`} 
+                              fill={INDUSTRY_COLORS_MAP[entry.name] || DEFAULT_COLOR} 
+                            />
+                          ))}
+                        </Pie>
+                         <Tooltip
+                          contentStyle={{ background: '#16162a', border: '1px solid #2a2a45', borderRadius: 12, color: '#f1f5f9' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    
+                    {/* Center Text */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-2xl font-bold text-white">100%</span>
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Total Leads</span>
+                    </div>
+                  </div>
+
+                  {/* Custom Legend Below */}
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2 w-full max-w-[80%]">
+                    {industryData.map((entry) => {
+                       const color = INDUSTRY_COLORS_MAP[entry.name] || DEFAULT_COLOR;
+                       const percent = totalLeadsCount > 0 ? Math.round((entry.value / totalLeadsCount) * 100) : 0;
+                       return (
+                         <div key={entry.name} className="flex items-center justify-between text-xs">
+                           <div className="flex items-center gap-2">
+                             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></span>
+                             <span className="text-slate-400">{entry.name}</span>
+                           </div>
+                           <span className="font-bold text-white">{percent}%</span>
+                         </div>
+                       );
+                    })}
+                  </div>
+
+                </div>
               ) : (
-                <div className="h-[220px] flex items-center justify-center text-slate-500 text-sm">
+                <div className="h-[250px] flex items-center justify-center text-slate-500 text-sm">
                   No data yet — discover some leads!
                 </div>
               )}
